@@ -1,0 +1,220 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background: #111111;
+  color: white;
+  text-align: center;
+}
+
+#app {
+  margin: 20px auto;
+  display: inline-block;
+  text-align: left;
+
+  /*display: -webkit-inline-flex;
+  -webkit-flex-direction: column;
+  -webkit-justify-content: flex-start;
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: flex-start;*/
+}
+
+#game {
+  position: relative;
+
+  display: -webkit-flex;
+  -webkit-flex-direction: row;
+  -webkit-justify-content: flex-start;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
+#canvas {
+  border: 1px solid #337890;
+}
+
+
+/* title */
+
+#title h1 {
+  margin: 0 0 10px 0;
+  color: #3398b0;
+}
+#title h1 small {
+  font-weight: normal;
+  font-size: 24px;
+  float: right;
+  color: #a0a0a0;
+  margin-top: 10px;
+}
+
+/* buttons */
+button {
+  font-size: 14px;
+  background: #202020;
+  color: white;
+  border: 1px solid #505050;
+  border-radius: 4px;
+  padding: 3px 7px;
+  text-align: center;
+  cursor: pointer;
+}
+button:hover {
+  background: #303030;
+}
+button:focus {
+  outline: none;
+  border-color: #507070;
+}
+button[disabled] {
+  background: #303030;
+  color: #c0c0c0;
+  cursor: default;
+}
+
+/* menu */
+
+#menu {
+  background: #181818;
+  border: 1px solid #337890;
+  border-left: none;
+  padding: 10px;
+  width: 180px;
+
+  display: -webkit-flex;
+  -webkit-flex-direction: column;
+  -webkit-justify-content: flex-start;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+#current_wave {
+  font-size: 20px;
+  color: #00c0e0;
+}
+#lives {
+  color: #ff7040;
+}
+#cash {
+  color: #00ff90;
+}
+
+#towers {
+  margin: 10px 0 0 0;
+  border-top: 1px solid #303030;
+  padding-top: 2px;
+}
+.tower {
+  padding: 5px 0 3px 0;
+  clear: both;
+  cursor: pointer;
+}
+.tower:hover, .tower.selected {
+  background: #202020;
+}
+
+#current_tower {
+  flex-grow: 1;
+  border-top: 1px solid #303030;
+  border-bottom: 1px solid #303030;
+  padding: 5px 0;
+}
+.tower_icon {
+  float: left;
+  margin-right: 3px;
+  margin-top: -10px;
+  margin-left: -10px;
+}
+.tower_type {
+  font-size: 14px;
+  line-height: 10px;
+}
+.tower_cost, .tower_dps, .tower_level, .tower_range {
+  display: inline-block;
+  margin-right: 5px;
+  font-size: 11px;
+  color: #a0a0a0;
+}
+.tower_dps {
+  margin-right: 0;
+}
+.control_button.tower_upgrade, .control_button.tower_sell {
+  display: inline-block;
+  margin-right: 5px;
+  width: 40%;
+  font-size: 12px;
+}
+
+#controls {
+  margin-top: 10px;
+}
+.control_button {
+  margin-top: 5px;
+  display: block;
+  width: 100%;
+}
+
+/* display */
+
+#display {
+  position: absolute;
+  top: 0; left: 0;
+  bottom: 0; right: 0;
+  pointer-events: none;
+}
+#display > #fps {
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+  font-size: 12px;
+  padding: 3px 5px;
+  background: rgba(0,0,0,0.4);
+  border-radius: 4px;
+  width: 37px;
+  height: 12px;
+}
+
+/* overlay */
+
+#overlay_outer {
+  position: absolute;
+  top: 0; left: 0;
+  bottom: 0; right: 0;
+  display: table-cell;
+  pointer-events: none;
+}
+#overlay_middle {
+  display: table;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+#overlay {
+  display: table-cell;
+  text-align: center;
+  vertical-align: middle;
+  padding-bottom: 20px;
+  pointer-events: initial;
+}
+#start_button {
+  font-size: 16px;
+  padding: 12px 17px;
+}
+
+/* end game prompt */
+.overlay_modal {
+  display: inline-block;
+  background: rgba(10,10,10,0.8);
+  padding: 40px;
+  border-radius: 15px;
+}
+#end_game_button {
+  margin-right: 10px;
+}
+#end_game_button, #end_game_cancel_button {
+  margin-top: 15px;
+  padding: 5px 9px;
+}
