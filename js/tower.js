@@ -34,14 +34,14 @@ Tower.types = {
 function Tower(data) {
   var _this = this;
 
-  var pos = this.pos = data.position;
-  var target = data.target || null;
+  var pos = this.pos = data.pos;
+  var type = this.type = data.type;
 
-  if (!Tower.types[data.type])
-    throw new Error("unknown tower type: "+data.type);
+  if (!Tower.types[type])
+    throw new Error("unknown tower type: "+type);
 
-  var params = Tower.types[data.type];
-  var towerCanvas = R.towers[data.type];
+  var params = Tower.types[type];
+  var towerCanvas = R.towers[type];
 
   // parameters
   var bulletSpeed = 0.5;
@@ -51,6 +51,7 @@ function Tower(data) {
   var rotAngle = 0;
   var bullets = [];
   var msToBullet = 0;
+  var target = null;
 
   _this.level = 0;
   function updateParams(){
@@ -66,7 +67,7 @@ function Tower(data) {
 
   // method overrides
   var makeBullet, drawBullet, toggleSide = -1;
-  if (data.type === 'rapid') {
+  if (type === 'rapid') {
     makeBullet = function(){
       toggleSide = -toggleSide;
       return {
@@ -84,7 +85,7 @@ function Tower(data) {
       ctx.restore();
     };
 
-  } else if (data.type === 'laser') {
+  } else if (type === 'laser') {
     makeBullet = function(){
       return {};
     };
@@ -200,7 +201,7 @@ function Tower(data) {
     }
   };
 
-  if (data.type === "laser") {
+  if (type === "laser") {
     _this.drawBullets = function(ctx, dt){
       if (target) {
         target.applyDamage(_this.damage * (dt / 1000.0));

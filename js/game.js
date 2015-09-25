@@ -3,7 +3,7 @@ function Game(data) {
 
   // state
   var gameMap;
-  var towers = [];
+  var towers = {};
   var enemies = [];
   var enemyPath = null;
 
@@ -17,6 +17,8 @@ function Game(data) {
 
   game.ended = false;
 
+  game.selectedTowerType = null;
+
   // listeners
   game.updateGUI = function(){};
 
@@ -28,7 +30,7 @@ function Game(data) {
   ];
 
   // game map
-  gameMap = new GameMap(window.testMapData);
+  gameMap = game.map = new GameMap(window.testMapData);
 
   var mapOffsetX = gameMap.offsetX + Hex.width/2 + gameMap.mapX;
   var mapOffsetY = gameMap.offsetY + Hex.height/2 + gameMap.mapY;
@@ -38,45 +40,34 @@ function Game(data) {
   var endCell = gameMap.getEndCells()[0];
   enemyPath = gameMap.getPath(startCell, endCell);
 
-  // console.log(enemyPath);
-  function makeEnemy(){
-    var idx = enemies.length;
-    var enemy = new Enemy({
-      game: game,
-      origin: startCell,
-      path: enemyPath
-    });
-    enemy.onRemove = function(){
-      if (!enemy.killed) {
-        game.lives -= 1;
-        game.updateGUI();
-        if (game.lives === 0) {
-          game.end(false);
-          return;
-        }
-      }
-      enemies[idx] = null;
-
-      if (game.allEnemiesKilled()) {
-        enemies = [];
-        game.nextWave();
-      }
-    };
-    enemies[idx] = enemy;
-  }
-
-  // test tower
+  // load map towers
   gameMap.getTowers().forEach(function(towerCell){
-    towers.push(new Tower({
-      game: game,
-      type: towerCell.cell.tower,
-      position: Hex.getHexCenter(towerCell.q, towerCell.r)
-    }));
+    addTower(towerCell, towerCell.cell.tower);
   });
 
   // onClick
   game.click = function(x, y){
-    gameMap.click(x, y);
+    var clickedHex = gameMap.getHexAt(x, y);
+    var clickedCell = gameMap.getCell(clickedHex.q, clickedHex.r);
+    // setCell(clickedHex.q, clickedHex.r, {});
+    if (clickedCell) {
+      if (clickedCell.type === "tower") {
+        var clickedTower = towers[Hex.toString(clickedHex)];
+        if (clickedTower) {
+          console.log(clickedHex.q, clickedHex.r, clickedTower)
+          // TODO
+        }
+      } else if (!clickedCell.type) {
+        if (game.selectedTowerType) {
+          var cost = Tower.types[game.selectedTowerType].cost;
+          if (cost <= game.cash) {
+            addTower(clickedHex, game.selectedTowerType);
+            game.cash -= cost;
+            game.updateGUI();
+          }
+        }
+      }
+    }
   };
 
   // draw
@@ -86,7 +77,7 @@ function Game(data) {
     // make next enemy
     if (game.enemiesReleased < game.waves[game.wave].count) {
       if (msToNextEnemy <= 0) {
-        makeEnemy();
+        game.addEnemy(game.waves[game.wave]);
         msToNextEnemy = 1000 / enemiesPerSecond;
         game.enemiesReleased += 1;
         if (game.enemiesReleased === game.waves[game.wave].count) {
@@ -110,10 +101,10 @@ function Game(data) {
     }
 
     // draw towers
-    for (var i = 0; i < towers.length; ++i) {
-      if (towers[i]) {
-        towers[i].drawRange(ctx);
-        towers[i].draw(ctx, dt);
+    for (var k in towers) {
+      if (towers[k]) {
+        towers[k].drawRange(ctx);
+        towers[k].draw(ctx, dt);
       }
     }
 
@@ -145,6 +136,47 @@ function Game(data) {
 
     console.log('game '+(isWin ? 'won' : 'lost'))
     // TODO
+  };
+
+  // tower functions
+  game.addTower = addTower;
+  function addTower(hex, towerType){
+    var cell = gameMap.getCell(hex.q, hex.r);
+    cell.type = "tower";
+    cell.tower = towerType;
+    towers[hex.q+","+hex.r] = new Tower({
+      game: game,
+      type: cell.tower,
+      pos: Hex.getHexCenter(hex.q, hex.r)
+    });
+  };
+
+  // add enemy
+  game.addEnemy = function(data){
+    var idx = enemies.length;
+    var enemy = new Enemy({
+      type: data.type,
+      game: game,
+      origin: startCell,
+      path: enemyPath
+    });
+    enemy.onRemove = function(){
+      if (!enemy.killed) {
+        game.lives -= 1;
+        game.updateGUI();
+        if (game.lives === 0) {
+          game.end(false);
+          return;
+        }
+      }
+      enemies[idx] = null;
+
+      if (game.allEnemiesKilled()) {
+        enemies = [];
+        game.nextWave();
+      }
+    };
+    enemies[idx] = enemy;
   };
 
   // data functions

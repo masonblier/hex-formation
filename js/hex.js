@@ -18,6 +18,17 @@ Hex.getHexCenter = function(q, r){
   };
 };
 
+Hex.toString = function(hex){
+  return (hex.q+","+hex.r);
+};
+Hex.fromString = function(str){
+  var splt = str.split(',');
+  return {
+    q: parseInt(splt[0], 10),
+    r: parseInt(splt[1], 10)
+  };
+};
+
 Hex.roundHex = function(ha){
   var hc_x = ha.q;
   var hc_z = ha.r;

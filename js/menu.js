@@ -33,7 +33,7 @@ function Menu(options){
         $to.setAttribute("class", "tower");
       });
       $t.setAttribute("class", "tower selected");
-      // TODO
+      game.selectedTowerType = type;
     });
   });
 

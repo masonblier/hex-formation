@@ -33,52 +33,49 @@ function GameMap(data) {
     ctx.restore();
   };
 
-  // onclick listener
-
-  this.click = function(x, y){
-    var clickHex = Hex.pixelToHex(x - mapX - offsetX,
-                                  y - mapY - offsetY + hexr/4);
-    console.log(clickHex.q, clickHex.r)
-    setCell(clickHex.q, clickHex.r, {});
-  };
-
   // hex drawing
 
-  var hexPath = new Path2D();
-  hexPath.moveTo(xw/2, 0);
-  hexPath.lineTo(xw, xh/4);
-  hexPath.lineTo(xw, 3*xh/4);
-  hexPath.lineTo(xw/2, xh);
-  hexPath.lineTo(0, 3*xh/4);
-  hexPath.lineTo(0, xh/4);
-  hexPath.lineTo(xw/2, 0);
+  var hexPath, borderL, borderTL, borderTR, borderR,
+      borderBR, borderBL, hexOutsetRect;
+  (function(){
+    hexPath = new Path2D();
+    hexPath.moveTo(xw/2, 0);
+    hexPath.lineTo(xw, xh/4);
+    hexPath.lineTo(xw, 3*xh/4);
+    hexPath.lineTo(xw/2, xh);
+    hexPath.lineTo(0, 3*xh/4);
+    hexPath.lineTo(0, xh/4);
+    hexPath.lineTo(xw/2, 0);
 
-  var borderL = new Path2D();
-  borderL.moveTo(0, 3*xh/4);
-  borderL.lineTo(0, xh/4);
+    borderL = new Path2D();
+    borderL.moveTo(0, 3*xh/4);
+    borderL.lineTo(0, xh/4);
 
-  var borderTL = new Path2D();
-  borderTL.moveTo(0, xh/4);
-  borderTL.lineTo(xw/2, 0);
+    borderTL = new Path2D();
+    borderTL.moveTo(0, xh/4);
+    borderTL.lineTo(xw/2, 0);
 
-  var borderTR = new Path2D();
-  borderTR.moveTo(xw/2, 0);
-  borderTR.lineTo(xw, xh/4);
+    borderTR = new Path2D();
+    borderTR.moveTo(xw/2, 0);
+    borderTR.lineTo(xw, xh/4);
 
-  var borderR = new Path2D();
-  borderR.moveTo(xw, xh/4);
-  borderR.lineTo(xw, 3*xh/4);
+    borderR = new Path2D();
+    borderR.moveTo(xw, xh/4);
+    borderR.lineTo(xw, 3*xh/4);
 
-  var borderBR = new Path2D();
-  borderBR.moveTo(xw, 3*xh/4);
-  borderBR.lineTo(xw/2, xh);
+    borderBR = new Path2D();
+    borderBR.moveTo(xw, 3*xh/4);
+    borderBR.lineTo(xw/2, xh);
 
-  var borderBL = new Path2D();
-  borderBL.moveTo(xw/2, xh);
-  borderBL.lineTo(0, 3*xh/4);
+    borderBL = new Path2D();
+    borderBL.moveTo(xw/2, xh);
+    borderBL.lineTo(0, 3*xh/4);
 
-  var hexOutsetRect = new Path2D();
-  hexOutsetRect.rect(0, 0, xw, xh);
+    hexOutsetRect = new Path2D();
+    hexOutsetRect.rect(0, 0, xw, xh);
+  })();
+
+  // drawing functions
 
   function drawCell(ctx, q, r, p){
     ctx.save();
@@ -169,15 +166,15 @@ function GameMap(data) {
     return matches;
   };
   this.getPath = function(startCell, endCell){
-    var start = str(startCell);
-    var goal = str(endCell);
+    var start = Hex.toString(startCell);
+    var goal = Hex.toString(endCell);
 
     var pq = [];
     pqPut(pq, 0, start);
 
     var came_from = {}
     var cost_so_far = {}
-    cost_so_far[str(startCell)] = 0
+    cost_so_far[Hex.toString(startCell)] = 0
     var solved = false;
 
     while (!pqEmpty(pq)) {
@@ -209,18 +206,8 @@ function GameMap(data) {
       current = came_from[current];
       path.unshift(current);
     }
-    return path.map(strP);
+    return path.map(Hex.fromString);
 
-    function str(cell){
-      return cell.q+","+cell.r;
-    }
-    function strP(cellStr){
-      var splt = cellStr.split(',');
-      return {
-        q: parseInt(splt[0], 10),
-        r: parseInt(splt[1], 10)
-      };
-    }
     function pqPut(pq, priority, cell){
       var idx;
       for (idx = 0; idx < pq.length; ++idx) {
@@ -235,20 +222,20 @@ function GameMap(data) {
       return pq.shift().cell;
     }
     function getNeighborsStr(cellStr) {
-      var cc = strP(cellStr);
+      var cc = Hex.fromString(cellStr);
       var neighbors = getNeighbors(cc.q, cc.r);
       var result = {};
       for (var k in neighbors) {
         if (neighbors[k]) {
           if (neighbors[k].cell.type==="path" || neighbors[k].cell.type==="end") {
-            result[k] = str(neighbors[k]);
+            result[k] = Hex.toString(neighbors[k]);
           }
         }
       }
       return result;
     }
     function distanceFromGoal(next) {
-      var ncc = strP(next);
+      var ncc = Hex.fromString(next);
       var nc = Hex.getHexCenter(ncc.q, ncc.r);
       var gc = Hex.getHexCenter(endCell.q, endCell.r);
       return Math.abs(nc.x - gc.x) + Math.abs(nc.y + gc.y);
@@ -268,6 +255,14 @@ function GameMap(data) {
     });
     return towers;
   };
+
+  this.getHexAt = function(x, y){
+    return Hex.pixelToHex(x - mapX - offsetX,
+                          y - mapY - offsetY + hexr/4);
+  };
+
+  this.getCell = getCell;
+  this.setCell = setCell;
 
   function getCell(q, r) {
     return data.cells[q] && data.cells[q][r];

@@ -47,6 +47,11 @@ App.start = function(){
     App.click(e.offsetX / scaleX, e.offsetY / scaleY);
   });
 
+  canvas.addEventListener('mouseout', function(e){
+    App.mouseX = -1;
+    App.mouseY = -1;
+  });
+
   // display
   $display = document.getElementById('display');
   $fps = U.createElement('div', 'fps', null, "fps:");
