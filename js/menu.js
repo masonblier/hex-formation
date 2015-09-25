@@ -40,13 +40,6 @@ function Menu(options){
   // current tower
   var $currentTower = U.createElement('div', 'current_tower');
   $el.appendChild($currentTower);
-    // <div id="current_tower">
-    //   <div class="tower_type">Test Tower</div>
-    //   <div class="tower_level">Level: 1</div>
-    //   <div class="tower_dps">Damage: 2</div>
-    //   <button class="tower_upgrade control_button">Upgrade</button>
-    //   <button class="tower_sell control_button">Sell</button>
-    // </div>
 
   // controls
   var $controls = U.createElement('div', 'controls');
@@ -77,15 +70,59 @@ function Menu(options){
   });
 
   // update gui
+  var currentTower = null;
   function updateGUI() {
+    // game info
     $currentWave.innerHTML = "Wave: "+(game.wave+1)+" / "+game.waves.length;
     $lives.innerHTML = "Lives: "+game.lives;
     $cash.innerHTML = "Cash: "+game.cash;
 
+    // button states
     if (game.ended || (game.enemiesReleased < game.waves[game.wave].count)) {
       $nextWaveBtn.setAttribute('disabled', 'disabled');
     } else {
       $nextWaveBtn.removeAttribute('disabled');
+    }
+
+    // current/selected tower display
+    if (game.selectedTower !== currentTower) {
+      currentTower = game.selectedTower;
+
+      if (currentTower) {
+        // render current tower display
+        $currentTower.innerHTML =
+          '<div id="current_tower_header">Selected Tower:</div>'+
+          '<div class="tower_icon"></div>'+
+          '<div class="tower_type">Test Tower</div>'+
+          '<div class="tower_level">Level: '+currentTower.level+'</div>'+
+          '<div class="tower_dps">DPS: '+currentTower.damage+'</div>'+
+          '<div class="tower_upgrade">Upgrade: '+currentTower.upgradeCost()+'</div>'+
+          '<div class="tower_sell">Sell: '+currentTower.sellValue()+'</div>';
+        $currentTower.children[1].appendChild(
+          U.cloneCanvas(R.towers[currentTower.type]));
+
+        var $btnGroup = U.createElement('div', 'tower_control_buttons');
+        var $upgradeBtn = U.createElement('button', null, 'tower_upgrade_btn control_button', 'Upgrade');
+        var $sellBtn = U.createElement('button', null, 'tower_sell_btn control_button', 'Sell');
+
+        $upgradeBtn.addEventListener('click', function(e){
+          currentTower = null;
+          game.upgradeTower(game.selectedTower);
+        });
+
+        $sellBtn.addEventListener('click', function(e){
+          currentTower = null;
+          game.sellTower(game.selectedTower);
+        });
+
+        $btnGroup.appendChild($upgradeBtn);
+        $btnGroup.appendChild($sellBtn);
+        $currentTower.appendChild($btnGroup);
+
+      } else {
+        // hide current tower display
+        $currentTower.innerHTML = '';
+      }
     }
   }
   game.updateGUI = updateGUI;

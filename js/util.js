@@ -26,3 +26,12 @@ U.createElement = function(tagName, tagId, tagClass, tagHTML) {
   if (tagHTML) $e.innerHTML = tagHTML;
   return $e;
 };
+
+U.cloneCanvas = function(oldCanvas){
+  var newCanvas = document.createElement('canvas');
+  var ctx = newCanvas.getContext('2d');
+  newCanvas.width = oldCanvas.width;
+  newCanvas.height = oldCanvas.height;
+  ctx.drawImage(oldCanvas, 0, 0);
+  return newCanvas;
+};

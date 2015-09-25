@@ -34,8 +34,9 @@ Tower.types = {
 function Tower(data) {
   var _this = this;
 
-  var pos = this.pos = data.pos;
   var type = this.type = data.type;
+  var hex = this.hex = data.hex;
+  var pos = this.pos = Hex.getHexCenter(hex.q, hex.r);
 
   if (!Tower.types[type])
     throw new Error("unknown tower type: "+type);
@@ -54,16 +55,26 @@ function Tower(data) {
   var target = null;
 
   _this.level = 0;
-  function updateParams(){
-    var multiplier = (1 + params.multiplier * _this.level);
-    _this.range = Hex.radius * params.initial_range * multiplier;
-    _this.damage = params.initial_dps * multiplier;
-  }
-  updateParams();
+  _this.multiplier = 0;
+  _this.range = null;
+  _this.damage = null;
 
-  // resource
-  var towerRange = new Path2D();
-  towerRange.arc(0, 0, _this.range, 0, 2*Math.PI);
+  _this.updateParams = function(){
+    _this.multiplier = (1 + params.multiplier * _this.level);
+    _this.range = Hex.radius * (params.initial_range + _this.multiplier);
+    _this.damage = params.initial_dps * _this.multiplier;
+  };
+  _this.updateParams();
+
+  // upgrade/sell amounts
+  _this.upgradeCost = function(){
+    return (10 *
+      Math.floor(Tower.types[type].cost * _this.multiplier / 20));
+  };
+  _this.sellValue = function(){
+    return (10 *
+      Math.floor(0.7 * (Tower.types[type].cost + _this.upgradeCost()) / 10));
+  };
 
   // method overrides
   var makeBullet, drawBullet, toggleSide = -1;
@@ -150,6 +161,10 @@ function Tower(data) {
     }
 
     // draw
+    if (_this.isSelected) {
+      _this.drawRange();
+    }
+
     ctx.save();
     ctx.translate(pos.x, pos.y);
     ctx.rotate(rotAngle);
@@ -214,8 +229,11 @@ function Tower(data) {
     ctx.save();
     ctx.translate(pos.x, pos.y);
 
+    var rangePath = new Path2D();
+    rangePath.arc(0, 0, _this.range, 0, 2*Math.PI);
+
     ctx.fillStyle = R.towerRange;
-    ctx.fill(towerRange);
+    ctx.fill(rangePath);
 
     ctx.restore();
   };

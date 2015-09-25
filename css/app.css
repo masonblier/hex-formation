@@ -121,6 +121,12 @@ button[disabled] {
   border-top: 1px solid #303030;
   border-bottom: 1px solid #303030;
   padding: 5px 0;
+  line-height: 12px;
+}
+#current_tower_header {
+  margin-top: 5px;
+  margin-bottom: 10px;
+  line-height: initial;
 }
 .tower_icon {
   float: left;
@@ -132,18 +138,26 @@ button[disabled] {
   font-size: 14px;
   line-height: 10px;
 }
-.tower_cost, .tower_dps, .tower_level, .tower_range {
+#current_tower > .tower_type {
+  margin-bottom: 5px;
+}
+.tower_cost, .tower_dps, .tower_level, .tower_range,
+.tower_upgrade, .tower_sell {
   display: inline-block;
   margin-right: 5px;
   font-size: 11px;
   color: #a0a0a0;
 }
-.tower_dps {
-  margin-right: 0;
+#tower_control_buttons {
+  clear: both;
+  text-align: center;
+  margin-top: 7px;
 }
-.control_button.tower_upgrade, .control_button.tower_sell {
+
+.control_button.tower_upgrade_btn, .control_button.tower_sell_btn {
   display: inline-block;
   margin-right: 5px;
+  margin-top: 0;
   width: 40%;
   font-size: 12px;
 }
@@ -156,6 +170,7 @@ button[disabled] {
   display: block;
   width: 100%;
 }
+
 
 /* display */
 

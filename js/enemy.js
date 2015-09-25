@@ -2,6 +2,7 @@ function Enemy(data) {
 
   var origin = data.origin;
   var path = data.path;
+  var initialHealth = data.health;
 
   // parameters
   var moveSpeed = 0.02 * 5;
@@ -22,9 +23,29 @@ function Enemy(data) {
   var rotAngle = 0;
 
   // state
-  this.health = 10;
+  this.health = initialHealth;
   this.killed = false;
   this.removed = false;
+
+  // take damage
+  this.applyDamage = function(damage){
+    this.health -= damage;
+    if (this.health <= 0) {
+      this.killed = true;
+      this.remove();
+    }
+  };
+
+  // calculate kill reward
+  this.reward = function(){
+    return Math.floor(2 * initialHealth);
+  };
+
+  // remove from map
+  this.remove = function(){
+    this.removed = true;
+    if (this.onRemove) this.onRemove();
+  };
 
   // draw
   this.draw = function(ctx, dt){
@@ -78,21 +99,6 @@ function Enemy(data) {
     }
     ctx.stroke();
     ctx.restore();
-  };
-
-  // take damage
-  this.applyDamage = function(damage){
-    this.health -= damage;
-    if (this.health <= 0) {
-      this.killed = true;
-      this.remove();
-    }
-  };
-
-  // remove from map
-  this.remove = function(){
-    this.removed = true;
-    if (this.onRemove) this.onRemove();
   };
 
   function pathStepDistance(){

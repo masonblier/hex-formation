@@ -12,12 +12,13 @@ function Game(data) {
   game.enemiesReleased = 0;
 
   game.wave = 0;
-  game.lives = 20;
+  game.lives = 10;
   game.cash = 100;
 
   game.ended = false;
 
   game.selectedTowerType = null;
+  game.selectedTower = null;
 
   // listeners
   game.updateGUI = function(){};
@@ -49,19 +50,20 @@ function Game(data) {
   game.click = function(x, y){
     var clickedHex = gameMap.getHexAt(x, y);
     var clickedCell = gameMap.getCell(clickedHex.q, clickedHex.r);
-    // setCell(clickedHex.q, clickedHex.r, {});
+    game.selectedTower = null;
+
     if (clickedCell) {
       if (clickedCell.type === "tower") {
         var clickedTower = towers[Hex.toString(clickedHex)];
         if (clickedTower) {
-          console.log(clickedHex.q, clickedHex.r, clickedTower)
-          // TODO
+          selectTower(clickedHex, clickedTower);
         }
       } else if (!clickedCell.type) {
         if (game.selectedTowerType) {
           var cost = Tower.types[game.selectedTowerType].cost;
           if (cost <= game.cash) {
-            addTower(clickedHex, game.selectedTowerType);
+            var tower = addTower(clickedHex, game.selectedTowerType);
+            game.selectedTower = tower;
             game.cash -= cost;
             game.updateGUI();
           }
@@ -96,14 +98,16 @@ function Game(data) {
     ctx.translate(mapOffsetX, mapOffsetY);
 
     // draw enemy path lines
-    if (enemyPath) {
-      // testEnemy.drawPath(ctx);
-    }
+    // if (enemyPath) {
+    //   testEnemy.drawPath(ctx);
+    // }
 
     // draw towers
     for (var k in towers) {
       if (towers[k]) {
-        towers[k].drawRange(ctx);
+        if (game.selectedTower === towers[k]) {
+          towers[k].drawRange(ctx);
+        }
         towers[k].draw(ctx, dt);
       }
     }
@@ -139,44 +143,76 @@ function Game(data) {
   };
 
   // tower functions
-  game.addTower = addTower;
   function addTower(hex, towerType){
     var cell = gameMap.getCell(hex.q, hex.r);
     cell.type = "tower";
     cell.tower = towerType;
-    towers[hex.q+","+hex.r] = new Tower({
+    var tower = new Tower({
       game: game,
       type: cell.tower,
-      pos: Hex.getHexCenter(hex.q, hex.r)
+      hex: hex
     });
+    towers[Hex.toString(hex)] = tower;
+    return tower;
+  }
+  function selectTower(hex, tower){
+    game.selectedTower = tower;
+    game.updateGUI();
+  }
+
+  game.upgradeTower = function(tower){
+    if (tower.upgradeCost() <= game.cash) {
+      game.cash -= tower.upgradeCost();
+      tower.level += 1;
+      tower.updateParams();
+      game.updateGUI();
+    }
+  };
+  game.sellTower = function(tower){
+    var cell = gameMap.getCell(tower.hex.q, tower.hex.r);
+    cell.tower = null;
+    cell.type = null;
+    delete towers[Hex.toString(tower.hex)];
+    game.selectedTower = null;
+
+    game.cash += tower.sellValue();
+    game.updateGUI();
   };
 
-  // add enemy
+  // enemy functions
   game.addEnemy = function(data){
     var idx = enemies.length;
     var enemy = new Enemy({
       type: data.type,
       game: game,
       origin: startCell,
-      path: enemyPath
+      path: enemyPath,
+      health: 10
     });
     enemy.onRemove = function(){
-      if (!enemy.killed) {
-        game.lives -= 1;
-        game.updateGUI();
-        if (game.lives === 0) {
-          game.end(false);
-          return;
-        }
-      }
-      enemies[idx] = null;
-
-      if (game.allEnemiesKilled()) {
-        enemies = [];
-        game.nextWave();
-      }
+      game.removeEnemy(idx, enemy);
     };
     enemies[idx] = enemy;
+  };
+  game.removeEnemy = function(idx, enemy){
+    if (enemy.killed) {
+      game.cash += enemy.reward();
+    } else {
+      game.lives -= 1;
+    }
+
+    game.updateGUI();
+    if (game.lives === 0) {
+      game.end(false);
+      return;
+    }
+
+    enemies[idx] = null;
+
+    if (game.allEnemiesKilled()) {
+      enemies = [];
+      game.nextWave();
+    }
   };
 
   // data functions
