@@ -61,8 +61,8 @@ function Tower(data) {
 
   _this.updateParams = function(){
     _this.multiplier = (1 + params.multiplier * _this.level);
-    _this.range = Hex.radius * (params.initial_range + _this.multiplier);
-    _this.damage = params.initial_dps * _this.multiplier;
+    _this.range = Hex.radius * (params.initial_range + (_this.multiplier / 3));
+    _this.damage = params.initial_dps * _this.multiplier * 1.5;
   };
   _this.updateParams();
 
@@ -74,6 +74,12 @@ function Tower(data) {
   _this.sellValue = function(){
     return (10 *
       Math.floor(0.7 * (Tower.types[type].cost + _this.upgradeCost()) / 10));
+  };
+
+  // remove from map
+  _this.remove = function(){
+    _this.removed = true;
+    if (_this.onRemove) _this.onRemove();
   };
 
   // method overrides
@@ -167,10 +173,16 @@ function Tower(data) {
 
     ctx.save();
     ctx.translate(pos.x, pos.y);
+
+    // draw level dots
+    drawLevelDots(ctx);
+
+    // draw tower image
+    ctx.save();
     ctx.rotate(rotAngle);
     ctx.translate(-Hex.radius, -Hex.radius);
-
     ctx.drawImage(towerCanvas, 0, 0);
+    ctx.restore();
 
     ctx.restore();
 
@@ -238,10 +250,30 @@ function Tower(data) {
     ctx.restore();
   };
 
-  // remove from map
-  _this.remove = function(){
-    _this.removed = true;
-    if (_this.onRemove) _this.onRemove();
-  };
+  function drawLevelDots(ctx){
+    // 0 - 4
+    for (var hci = 0; (hci < _this.level && hci < 4); hci++) {
+      drawLevelDot(ctx, { x: -Hex.radius + 8, y: -8 + hci*5 });
+    }
 
+    // 5 - 8
+    for (var hci = 4; (hci < _this.level && hci < 8); hci++) {
+      drawLevelDot(ctx, { x: Hex.radius - 8, y: -8 + (hci - 4)*5 });
+    }
+
+    // 9, 10
+    if (_this.level >= 9) {
+      drawLevelDot(ctx, { x: 0, y: -Hex.radius + 6 });
+    }
+    if (_this.level >= 10) {
+      drawLevelDot(ctx, { x: 0, y: Hex.radius - 6 });
+    }
+  }
+  function drawLevelDot(ctx, corner){
+    ctx.fillStyle = R.cellBorder;
+    ctx.beginPath();
+    ctx.arc(corner.x, corner.y, 2, 0, 2*Math.PI);
+    ctx.closePath();
+    ctx.fill();
+  }
 }

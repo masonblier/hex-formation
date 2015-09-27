@@ -2,7 +2,7 @@ var R = window.R = {};
 
 R.black = "#080808";
 
-R.cellBorder = "#102028";
+R.cellBorder = "#102830";
 R.cellBg = "#0e1010";
 R.cellPathBg = "#181818";
 R.cellHover = "rgba(255,255,255,0.1)";
@@ -26,6 +26,9 @@ R.towerDarkGreen = "#007000";
 R.towerGreen = "#00f000";
 
 R.towerBulletYellow = R.towerDarkYellow;
+
+R.healthBarBorder = "#303030";
+R.healthBarFill = "#ff3030";
 
 R.makePatterns = function(ctx){
   var patternCanvas = document.createElement("canvas");

@@ -180,16 +180,22 @@ button[disabled] {
   bottom: 0; right: 0;
   pointer-events: none;
 }
-#display > #fps {
+#display > #fps,
+#display > #display_overlay {
   position: absolute;
   bottom: 5px;
-  left: 5px;
   font-size: 12px;
   padding: 3px 5px;
   background: rgba(0,0,0,0.4);
   border-radius: 4px;
+}
+#display > #fps {
+  left: 5px;
   width: 37px;
   height: 12px;
+}
+#display > #display_overlay {
+  right: 208px;
 }
 
 /* overlay */
@@ -229,7 +235,7 @@ button[disabled] {
 #end_game_button {
   margin-right: 10px;
 }
-#end_game_button, #end_game_cancel_button {
+#end_game_button, #end_game_cancel_button, #game_ended_button {
   margin-top: 15px;
   padding: 5px 9px;
 }

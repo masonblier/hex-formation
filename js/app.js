@@ -4,6 +4,7 @@ var canvas, ctx;
 var game, menu;
 
 var $overlay, $display, $fps;
+var $displayOverlay;
 
 App.width;
 App.height;
@@ -56,6 +57,8 @@ App.start = function(){
   $display = document.getElementById('display');
   $fps = U.createElement('div', 'fps', null, "fps:");
   $display.appendChild($fps);
+  $displayOverlay = U.createElement('div', 'display_overlay');
+  $display.appendChild($displayOverlay);
 
   // show menu
   setTimeout(function(){
@@ -85,8 +88,12 @@ App.newGame = function(){
   // menu gui
   menu = new Menu({
     '$el': document.getElementById('menu'),
+    '$display': $displayOverlay,
     game: game
   });
+
+  // clear canvas
+  ctx.clearRect(0,0, App.width, App.height);
 
   // start loop
   App.resume();
@@ -122,6 +129,28 @@ App.endGame = function(){
     if (!appWasInPausedState) {
       App.resume();
     }
+  });
+};
+
+App.showGameEndScreen = function(isWin){
+  App.pause();
+
+  // show confirmation
+  $overlay.innerHTML = '';
+  $overlay.style['display'] = null;
+
+  var $gameEndScreen = U.createElement('div', 'game_ended_screen', 'overlay_modal',
+    (isWin ? 'Game completed. You have won.' : 'Game over. You have lost.')+'<br />');
+  $overlay.appendChild($gameEndScreen);
+
+  var $returnBtn = U.createElement('button', 'game_ended_button', null, "Return");
+  $gameEndScreen.appendChild($returnBtn);
+
+  $returnBtn.addEventListener('click', function(e){
+    if (game) {
+      game = null;
+    }
+    App.showGameMenu();
   });
 };
 

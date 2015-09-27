@@ -1,6 +1,7 @@
 function Menu(options){
 
   var $el = options.$el;
+  var $display = options.$display;
   var game = options.game;
 
   $el.innerHTML = '';
@@ -43,7 +44,7 @@ function Menu(options){
 
   // controls
   var $controls = U.createElement('div', 'controls');
-  var $nextWaveBtn = U.createElement('button', 'next_wave', 'control_button', 'Next Wave');
+  var $nextWaveBtn = U.createElement('button', 'next_wave', 'control_button', 'Start Game');
   var $pauseResumeBtn = U.createElement('button', 'pause_resume', 'control_button', 'Pause');
   var $endGameBtn = U.createElement('button', 'end_game', 'control_button', 'End Game');
   $controls.appendChild($nextWaveBtn);
@@ -52,7 +53,13 @@ function Menu(options){
   $el.appendChild($controls);
 
   $nextWaveBtn.addEventListener('click', function(e){
-    game.nextWave();
+    if (!game.started) {
+      game.started = true;
+      $nextWaveBtn.innerHTML = "Next Wave";
+      updateGUI();
+    } else {
+      game.nextWave();
+    }
   });
 
   $pauseResumeBtn.addEventListener('click', function(e){
@@ -69,19 +76,32 @@ function Menu(options){
     App.endGame();
   });
 
+  // overlayed display
+  $display.innerHTML = '';
+
   // update gui
   var currentTower = null;
   function updateGUI() {
     // game info
-    $currentWave.innerHTML = "Wave: "+(game.wave+1)+" / "+game.waves.length;
+    $currentWave.innerHTML = "Wave: "+
+      (!game.ended ? game.wave+1 : game.waves.length)+
+      " / "+game.waves.length;
     $lives.innerHTML = "Lives: "+game.lives;
     $cash.innerHTML = "Cash: "+game.cash;
 
     // button states
-    if (game.ended || (game.enemiesReleased < game.waves[game.wave].count)) {
-      $nextWaveBtn.setAttribute('disabled', 'disabled');
-    } else {
-      $nextWaveBtn.removeAttribute('disabled');
+    if (game.started) {
+      var currentWave = game.waves[game.wave];
+      if (game.ended || (game.enemiesReleased < currentWave.count)) {
+        $nextWaveBtn.setAttribute('disabled', 'disabled');
+      } else {
+        $nextWaveBtn.removeAttribute('disabled');
+      }
+    }
+
+    // current wave info display
+    if (currentWave) {
+      $display.innerHTML = 'Enemy Health: '+currentWave.health;
     }
 
     // current/selected tower display
@@ -94,10 +114,10 @@ function Menu(options){
           '<div id="current_tower_header">Selected Tower:</div>'+
           '<div class="tower_icon"></div>'+
           '<div class="tower_type">Test Tower</div>'+
-          '<div class="tower_level">Level: '+currentTower.level+'</div>'+
-          '<div class="tower_dps">DPS: '+currentTower.damage+'</div>'+
-          '<div class="tower_upgrade">Upgrade: '+currentTower.upgradeCost()+'</div>'+
-          '<div class="tower_sell">Sell: '+currentTower.sellValue()+'</div>';
+          '<div class="tower_level">Level: '+U.trimNumber(currentTower.level, 0)+'</div>'+
+          '<div class="tower_dps">DPS: '+U.trimNumber(currentTower.damage, 1)+'</div>'+
+          '<div class="tower_upgrade">Upgrade: '+U.trimNumber(currentTower.upgradeCost(), 1)+'</div>'+
+          '<div class="tower_sell">Sell: '+U.trimNumber(currentTower.sellValue(), 1)+'</div>';
         $currentTower.children[1].appendChild(
           U.cloneCanvas(R.towers[currentTower.type]));
 
@@ -111,7 +131,6 @@ function Menu(options){
         });
 
         $sellBtn.addEventListener('click', function(e){
-          currentTower = null;
           game.sellTower(game.selectedTower);
         });
 

@@ -15,6 +15,7 @@ function Game(data) {
   game.lives = 10;
   game.cash = 100;
 
+  game.started = false;
   game.ended = false;
 
   game.selectedTowerType = null;
@@ -25,9 +26,16 @@ function Game(data) {
 
   // waves
   game.waves = [
-    {type:'enemy', count:5},
-    {type:'enemy', count:20},
-    {type:'enemy', count:20},
+    {type:'enemy', count:5, health:5},
+    {type:'enemy', count:20, health:6},
+    {type:'enemy', count:20, health:10},
+    {type:'enemy', count:10, health:15},
+    {type:'enemy', count:10, health:20},
+    {type:'enemy', count:20, health:22},
+    {type:'enemy', count:20, health:25},
+    {type:'enemy', count:10, health:35},
+    {type:'enemy', count:10, health:38},
+    {type:'enemy', count:20, health:40},
   ];
 
   // game map
@@ -45,6 +53,11 @@ function Game(data) {
   gameMap.getTowers().forEach(function(towerCell){
     addTower(towerCell, towerCell.cell.tower);
   });
+
+  // add test towers
+  // addTower({q:15,r:6}, "standard");
+  // addTower({q:17,r:6}, "rapid");
+  // addTower({q:19,r:6}, "laser");
 
   // onClick
   game.click = function(x, y){
@@ -77,16 +90,18 @@ function Game(data) {
     if (game.ended) return;
 
     // make next enemy
-    if (game.enemiesReleased < game.waves[game.wave].count) {
-      if (msToNextEnemy <= 0) {
-        game.addEnemy(game.waves[game.wave]);
-        msToNextEnemy = 1000 / enemiesPerSecond;
-        game.enemiesReleased += 1;
-        if (game.enemiesReleased === game.waves[game.wave].count) {
-          game.updateGUI();
+    if (game.started) {
+      if (game.enemiesReleased < game.waves[game.wave].count) {
+        if (msToNextEnemy <= 0) {
+          game.addEnemy(game.waves[game.wave]);
+          msToNextEnemy = 1000 / enemiesPerSecond;
+          game.enemiesReleased += 1;
+          if (game.enemiesReleased === game.waves[game.wave].count) {
+            game.updateGUI();
+          }
+        } else {
+          msToNextEnemy -= dt;
         }
-      } else {
-        msToNextEnemy -= dt;
       }
     }
 
@@ -137,9 +152,7 @@ function Game(data) {
   game.end = function(isWin){
     game.ended = true;
     App.pause();
-
-    console.log('game '+(isWin ? 'won' : 'lost'))
-    // TODO
+    App.showGameEndScreen(isWin);
   };
 
   // tower functions
@@ -187,7 +200,7 @@ function Game(data) {
       game: game,
       origin: startCell,
       path: enemyPath,
-      health: 10
+      health: data.health
     });
     enemy.onRemove = function(){
       game.removeEnemy(idx, enemy);

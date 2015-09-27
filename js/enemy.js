@@ -17,6 +17,10 @@ function Enemy(data) {
   circleEnemy2.rect(-8, -2, 16, 4);
   // circleEnemy2.rect(-8, -2, 2, 4);
 
+  // health bar
+  var healthBarRect = new Path2D();
+  healthBarRect.rect(-8, -12, 16, 2);
+
   // movement
   var pathStep = 0;
   var pos = this.pos = Hex.getHexCenter(origin.q, origin.r);
@@ -68,8 +72,11 @@ function Enemy(data) {
 
     ctx.save();
     ctx.translate(pos.x, pos.y);
+
+    ctx.save();
     ctx.rotate(rotAngle);
 
+    // draw enemy
     ctx.fillStyle = R.enemyGreen;
     ctx.strokeStyle = R.enemyDarkGreen;
     ctx.fill(circleEnemy);
@@ -78,6 +85,14 @@ function Enemy(data) {
     ctx.strokeStyle = R.cellBg;
     ctx.fill(circleEnemy2);
     ctx.stroke(circleEnemy2);
+    ctx.restore();
+
+    // draw health bar
+    ctx.strokeStyle = R.healthBarBorder;
+    ctx.fillStyle = R.healthBarFill;
+    ctx.stroke(healthBarRect);
+    ctx.scale(this.health / initialHealth, 1);
+    ctx.fill(healthBarRect);
 
     ctx.restore();
   };

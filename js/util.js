@@ -17,6 +17,13 @@ U.pointToLineDistance = function(circle, p1, p2){
   return U.distance(circle, p1);
 };
 
+// format number for display
+U.trimNumber = function(num, decimals){
+  var numParts = (num.toString()).split('.');
+  if (!numParts[1]) decimals = 0;
+  return numParts[0] + (decimals > 0 ? ('.' + numParts[1].substr(0, decimals)) : '');
+};
+
 // html utils
 
 U.createElement = function(tagName, tagId, tagClass, tagHTML) {
