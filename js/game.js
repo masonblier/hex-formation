@@ -26,15 +26,15 @@ function Game(data) {
 
   // waves
   game.waves = [
-    {type:'enemy', count:5, health:5},
+    {type:'enemy', count:5, health:3},
+    {type:'enemy', count:10, health:5},
     {type:'enemy', count:20, health:6},
-    {type:'enemy', count:20, health:10},
-    {type:'enemy', count:10, health:15},
-    {type:'enemy', count:10, health:20},
-    {type:'enemy', count:20, health:22},
+    {type:'enemy', count:20, health:8},
+    {type:'enemy', count:10, health:12},
+    {type:'enemy', count:10, health:16},
+    {type:'enemy', count:20, health:20},
     {type:'enemy', count:20, health:25},
     {type:'enemy', count:10, health:35},
-    {type:'enemy', count:10, health:38},
     {type:'enemy', count:20, health:40},
   ];
 
@@ -49,11 +49,6 @@ function Game(data) {
   var endCell = gameMap.getEndCells()[0];
   enemyPath = gameMap.getPath(startCell, endCell);
 
-  // load map towers
-  gameMap.getTowers().forEach(function(towerCell){
-    addTower(towerCell, towerCell.cell.tower);
-  });
-
   // add test towers
   // addTower({q:15,r:6}, "standard");
   // addTower({q:17,r:6}, "rapid");
@@ -66,11 +61,9 @@ function Game(data) {
     game.selectedTower = null;
 
     if (clickedCell) {
-      if (clickedCell.type === "tower") {
-        var clickedTower = towers[Hex.toString(clickedHex)];
-        if (clickedTower) {
-          selectTower(clickedHex, clickedTower);
-        }
+      var clickedTower = towers[Hex.toString(clickedHex)];
+      if (clickedTower) {
+        selectTower(clickedHex, clickedTower);
       } else if (!clickedCell.type) {
         if (game.selectedTowerType) {
           var cost = Tower.types[game.selectedTowerType].cost;
@@ -157,12 +150,9 @@ function Game(data) {
 
   // tower functions
   function addTower(hex, towerType){
-    var cell = gameMap.getCell(hex.q, hex.r);
-    cell.type = "tower";
-    cell.tower = towerType;
     var tower = new Tower({
       game: game,
-      type: cell.tower,
+      type: towerType,
       hex: hex
     });
     towers[Hex.toString(hex)] = tower;

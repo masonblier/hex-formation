@@ -245,17 +245,6 @@ function GameMap(data) {
 
   // data utilities
 
-  this.getTowers = function(){
-    var towers = [];
-    forEachCell(function(q, r){
-      var cell = getCell(q, r);
-      if (cell && cell.type === 'tower') {
-        towers.push({q:q, r:r, cell:cell});
-      }
-    });
-    return towers;
-  };
-
   this.getHexAt = function(x, y){
     return Hex.pixelToHex(x - mapX - offsetX,
                           y - mapY - offsetY + hexr/4);
