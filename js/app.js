@@ -40,12 +40,15 @@ App.start = function(){
 
   // events
   canvas.addEventListener('mousemove', function(e){
-    App.mouseX = e.offsetX / scaleX;
-    App.mouseY = e.offsetY / scaleY;
+    App.mouseX = (e.offsetX || e.layerX) / scaleX;
+    App.mouseY = (e.offsetY || e.layerY) / scaleY;
   }, false);
 
   canvas.addEventListener('click', function(e){
-    App.click(e.offsetX / scaleX, e.offsetY / scaleY);
+    App.click(
+      (e.offsetX || e.layerX) / scaleX,
+      (e.offsetY || e.layerY) / scaleY
+    );
   });
 
   canvas.addEventListener('mouseout', function(e){
