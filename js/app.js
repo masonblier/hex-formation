@@ -216,3 +216,9 @@ App.resume = function(){
   App.resetAnimTimes();
   requestAnimationFrame(App.draw);
 };
+
+document.onreadystatechange = function () {
+  if (document.readyState == "complete") {
+    App.start();
+  }
+}
