@@ -17,24 +17,24 @@ function Menu(options){
   // tower select
   var $towers = U.createElement('div', 'towers');
   $el.appendChild($towers);
+
+  var $towerButtons = {};
   Object.keys(Tower.types).forEach(function(type){
     var params = Tower.types[type];
 
-    var $t = U.createElement('div', null, 'tower',
+    $towerButtons[type] = U.createElement('div', null, 'tower',
       '<div class="tower_icon"></div>'+
       '<div class="tower_type">'+params.name+'</div>'+
       '<div class="tower_cost">Cost: '+params.cost+'</div>'+
       '<div class="tower_range">Range: '+params.initial_range+'</div>'+
       '<div class="tower_dps">DPS: '+params.initial_dps+'</div>');
-    $t.children[0].appendChild(R.towers[type]);
-    $towers.appendChild($t);
+    $towerButtons[type].children[0].appendChild(R.towers[type]);
+    $towers.appendChild($towerButtons[type]);
 
-    $t.addEventListener('click', function(e){
-      Array.prototype.forEach.call($towers.children, function($to){
-        $to.setAttribute("class", "tower");
-      });
-      $t.setAttribute("class", "tower selected");
+
+    $towerButtons[type].addEventListener('click', function(e){
       game.selectedTowerType = type;
+      updateGUI();
     });
   });
 
@@ -80,7 +80,7 @@ function Menu(options){
   $display.innerHTML = '';
 
   // update gui
-  var currentTower = null;
+  var selectedTowerType = null, currentTower = null;
   function updateGUI() {
     // game info
     $currentWave.innerHTML = "Wave: "+
@@ -102,6 +102,18 @@ function Menu(options){
     // current wave info display
     if (currentWave) {
       $display.innerHTML = 'Enemy Health: '+currentWave.health;
+    }
+
+    // selected tower type
+    if (game.selectedTowerType !== selectedTowerType) {
+      selectedTowerType = game.selectedTowerType;
+      Object.keys($towerButtons).forEach(function(type){
+        if (type === selectedTowerType) {
+          $towerButtons[type].setAttribute("class", "tower selected");
+        } else {
+          $towerButtons[type].setAttribute("class", "tower");
+        }
+      });
     }
 
     // current/selected tower display

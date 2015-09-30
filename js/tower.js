@@ -93,7 +93,7 @@ function Tower(data) {
         angle: rotAngle
       };
     };
-    drawBullet = function(bullet){
+    drawBullet = function(ctx, bullet){
       ctx.save();
       ctx.fillStyle = R.towerGreen;
       ctx.beginPath();
@@ -106,7 +106,7 @@ function Tower(data) {
     makeBullet = function(){
       return {};
     };
-    drawBullet = function(bullet){
+    drawBullet = function(ctx, bullet){
       var x1 = pos.x + (Math.cos(rotAngle) * 18);
       var y1 = pos.y + (Math.sin(rotAngle) * 18);
 
@@ -128,7 +128,7 @@ function Tower(data) {
         angle: rotAngle
       };
     };
-    drawBullet = function(bullet){
+    drawBullet = function(ctx, bullet){
       ctx.save();
       ctx.fillStyle = R.towerBulletYellow;
       ctx.beginPath();
@@ -220,7 +220,7 @@ function Tower(data) {
       }
 
       // draw
-      drawBullet(bullet);
+      drawBullet(ctx, bullet);
 
       // update position
       bullet.x += nextX;
@@ -232,7 +232,7 @@ function Tower(data) {
     _this.drawBullets = function(ctx, dt){
       if (target) {
         target.applyDamage(_this.damage * (dt / 1000.0));
-        drawBullet();
+        drawBullet(ctx);
       }
     };
   }

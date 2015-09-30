@@ -22,7 +22,11 @@
         <h1>Hex Formation <small>Tower Defense</small></h1>
       </div>
       <div id="game">
-        <canvas id="canvas" width="640" height="480"></canvas>
+        <div id="canvas_set">
+          <canvas id="map_canvas" class="game_canvas" width="640" height="480"></canvas>
+          <canvas id="active_canvas" class="game_canvas" width="640" height="480"></canvas>
+          <canvas id="preview_canvas" class="game_canvas" width="640" height="480"></canvas>
+        </div>
         <div id="menu"></div>
         <div id="display"></div>
         <div id="overlay_outer">

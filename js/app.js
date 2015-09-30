@@ -1,6 +1,7 @@
 var App = window.App = {};
 
-var canvas, ctx;
+var top_canvas;
+var ctxm, ctxa, ctxp;
 var game, menu;
 
 var $overlay, $display, $fps;
@@ -23,35 +24,43 @@ App.start = function(){
   $overlay.innerHTML = 'Loading...';
   $overlay.style['display'] = null;
 
-  // canvas
-  canvas = document.getElementById('canvas');
-  ctx = canvas.getContext('2d');
-  App.width = canvas.width;
-  App.height = canvas.height;
+  // canvases
+  var map_canvas = document.getElementById('map_canvas');
+  ctxm = map_canvas.getContext('2d');
+  var active_canvas = document.getElementById('active_canvas');
+  ctxa = active_canvas.getContext('2d');
+  top_canvas = document.getElementById('preview_canvas');
+  ctxp = top_canvas.getContext('2d');
+
+  App.width = top_canvas.width;
+  App.height = top_canvas.height;
 
   // scaling
   scaleX = App.width / 640;
   scaleY = App.height / 480;
-  ctx.scale(scaleX, scaleY);
+  ctxm.scale(scaleX, scaleY);
+  ctxa.scale(scaleX, scaleY);
+  ctxp.scale(scaleX, scaleY);
 
   // prepare resources
-  R.makePatterns(ctx);
-  R.makeTowers(ctx);
+  R.makePatterns(ctxm);
+  R.makeTowers(ctxa);
+  R.makeTowers(ctxp);
 
   // events
-  canvas.addEventListener('mousemove', function(e){
+  top_canvas.addEventListener('mousemove', function(e){
     App.mouseX = (e.offsetX || e.layerX) / scaleX;
     App.mouseY = (e.offsetY || e.layerY) / scaleY;
   }, false);
 
-  canvas.addEventListener('click', function(e){
+  top_canvas.addEventListener('click', function(e){
     App.click(
       (e.offsetX || e.layerX) / scaleX,
       (e.offsetY || e.layerY) / scaleY
     );
   });
 
-  canvas.addEventListener('mouseout', function(e){
+  top_canvas.addEventListener('mouseout', function(e){
     App.mouseX = -1;
     App.mouseY = -1;
   });
@@ -95,8 +104,13 @@ App.newGame = function(){
     game: game
   });
 
-  // clear canvas
-  ctx.clearRect(0,0, App.width, App.height);
+  // clear canvases
+  ctxm.clearRect(0,0, App.width, App.height);
+  ctxa.clearRect(0,0, App.width, App.height);
+  ctxp.clearRect(0,0, App.width, App.height);
+
+  // draw map
+  game.drawMap(ctxm, dt);
 
   // start loop
   App.resume();
@@ -181,7 +195,8 @@ App.draw = function(animTime){
   }
   lastAnimTime = animTime;
 
-  game.draw(ctx, dt);
+  game.drawActive(ctxa, dt);
+  game.drawPreview(ctxp, dt);
 
   if (!App.paused) {
     requestAnimationFrame(App.draw);

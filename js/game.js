@@ -18,7 +18,7 @@ function Game(data) {
   game.started = false;
   game.ended = false;
 
-  game.selectedTowerType = null;
+  game.selectedTowerType = "standard";
   game.selectedTower = null;
 
   // listeners
@@ -58,9 +58,10 @@ function Game(data) {
   game.click = function(x, y){
     var clickedHex = gameMap.getHexAt(x, y);
     var clickedCell = gameMap.getCell(clickedHex.q, clickedHex.r);
-    game.selectedTower = null;
 
     if (clickedCell) {
+      game.selectedTower = null;
+
       var clickedTower = towers[Hex.toString(clickedHex)];
       if (clickedTower) {
         selectTower(clickedHex, clickedTower);
@@ -71,15 +72,22 @@ function Game(data) {
             var tower = addTower(clickedHex, game.selectedTowerType);
             game.selectedTower = tower;
             game.cash -= cost;
-            game.updateGUI();
           }
         }
       }
+
+      game.updateGUI();
     }
   };
 
-  // draw
-  game.draw = function(ctx, dt){
+  // draw map (static)
+  game.drawMap = function(ctxa){
+    ctxa.clearRect(0,0, App.width, App.height);
+    gameMap.draw(ctxa, dt);
+  };
+
+  // draw active layer
+  game.drawActive = function(ctxa, dt){
     if (game.ended) return;
 
     // make next enemy
@@ -98,36 +106,55 @@ function Game(data) {
       }
     }
 
-    // draw map
-    ctx.clearRect(0,0, App.width, App.height);
-    gameMap.draw(ctx, dt);
+    // clear layer
+    ctxa.clearRect(0,0, App.width, App.height);
 
-    ctx.save();
-    ctx.translate(mapOffsetX, mapOffsetY);
+    ctxa.save();
+    ctxa.translate(mapOffsetX, mapOffsetY);
 
     // draw enemy path lines
     // if (enemyPath) {
-    //   testEnemy.drawPath(ctx);
+    //   testEnemy.drawPath(ctxa);
     // }
 
     // draw towers
     for (var k in towers) {
       if (towers[k]) {
         if (game.selectedTower === towers[k]) {
-          towers[k].drawRange(ctx);
+          towers[k].drawRange(ctxa);
         }
-        towers[k].draw(ctx, dt);
+        towers[k].draw(ctxa, dt);
       }
     }
 
     // draw enemies
     for (var i = 0; i < enemies.length; ++i) {
       if (enemies[i]) {
-        enemies[i].draw(ctx, dt);
+        enemies[i].draw(ctxa, dt);
       }
     }
 
-    ctx.restore();
+    ctxa.restore();
+  };
+
+  // draw preview layer
+  game.drawPreview = function(ctxp, dt){
+    // clear layer
+    ctxp.clearRect(0,0, App.width, App.height);
+
+    var mouseHex = gameMap.getHexAt(App.mouseX, App.mouseY);
+    var hc = Hex.getHexCenter(mouseHex.q, mouseHex.r);
+
+    // draw mouseovered cell
+    gameMap.drawCellHighlight(ctxp, hc);
+
+    // draw selectedTowerType preview
+    if (game.selectedTowerType && !towers[Hex.toString(mouseHex)]) {
+      ctxp.save();
+      ctxp.translate(hc.x + mapOffsetX - Hex.radius, hc.y + mapOffsetY - Hex.radius);
+      ctxp.drawImage(R.towers[game.selectedTowerType], 0, 0);
+      ctxp.restore();
+    }
   };
 
   // next wave start
@@ -160,6 +187,7 @@ function Game(data) {
   }
   function selectTower(hex, tower){
     game.selectedTower = tower;
+    game.selectedTowerType = null;
     game.updateGUI();
   }
 

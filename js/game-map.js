@@ -13,8 +13,6 @@ function GameMap(data) {
   var offsetX = this.offsetX = -(xw * gridHeight);
   var offsetY = this.offsetY = 0;
 
-  var mouseHex = {x: 0, y: 0};
-
   // draw entry
 
   this.draw = function(ctx) {
@@ -24,13 +22,21 @@ function GameMap(data) {
     ctx.strokeStyle = R.cellBorder;
     ctx.fillStyle = R.cellBg;
 
-    mouseHex = Hex.pixelToHex(App.mouseX - mapX - offsetX,
-                              App.mouseY - mapY - offsetY + hexr/4);
-
     forEachCell(function(q, r, p){
       drawCell(ctx, q, r, p);
     });
     ctx.restore();
+  };
+
+  // draw preview layer mouse highlight
+  this.drawCellHighlight = function(ctxp, hc) {
+    ctxp.save();
+    ctxp.translate(offsetX + mapX + hc.x, offsetY + mapY + hc.y);
+
+    ctxp.fillStyle = R.cellHover;
+    ctxp.fill(hexPath);
+
+    ctxp.restore();
   };
 
   // hex drawing
@@ -83,11 +89,6 @@ function GameMap(data) {
 
     cell = getCell(q, r);
     drawCellStyle(ctx, cell, p)
-
-    if (mouseHex.q === q && mouseHex.r === r) {
-      ctx.fillStyle = R.cellHover;
-      ctx.fill(hexPath);
-    }
 
     if (cell && (cell.type==="path" || cell.type==="start" || cell.type==="end")) {
       var neighbors = getNeighbors(q, r);

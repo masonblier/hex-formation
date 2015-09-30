@@ -29,10 +29,19 @@ body {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
+
+  border: 1px solid #337890;
 }
 
-#canvas {
-  border: 1px solid #337890;
+#canvas_set {
+  position: relative;
+  width: 640px;
+  height: 480px;
+}
+.game_canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 
@@ -78,9 +87,7 @@ button[disabled] {
 
 #menu {
   background: #181818;
-  border: 1px solid #337890;
-  border-left: none;
-  padding: 10px;
+  border-left: 1px solid #337890;
   width: 180px;
 
   display: -webkit-flex;
@@ -94,33 +101,39 @@ button[disabled] {
 #current_wave {
   font-size: 20px;
   color: #00c0e0;
+  padding: 10px 10px 0 10px;
 }
 #lives {
   color: #ff7040;
+  padding: 0 10px;
 }
 #cash {
   color: #00ff90;
+  padding: 0 10px 0 10px;
 }
 
 #towers {
   margin: 10px 0 0 0;
   border-top: 1px solid #303030;
-  padding-top: 2px;
+  padding: 5px 0 5px 0;
 }
 .tower {
-  padding: 5px 0 3px 0;
+  padding: 8px 0 7px 2px;
   clear: both;
   cursor: pointer;
 }
-.tower:hover, .tower.selected {
+.tower:hover {
   background: #202020;
+}
+.tower.selected {
+  background: #18292F;
 }
 
 #current_tower {
   flex-grow: 1;
   border-top: 1px solid #303030;
   border-bottom: 1px solid #303030;
-  padding: 5px 0;
+  padding: 5px 10px;
   line-height: 12px;
 }
 #current_tower_header {
@@ -163,7 +176,7 @@ button[disabled] {
 }
 
 #controls {
-  margin-top: 10px;
+  padding: 10px;
 }
 .control_button {
   margin-top: 5px;
