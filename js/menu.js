@@ -52,16 +52,22 @@ function Menu(options){
   $controls.appendChild($endGameBtn);
   $el.appendChild($controls);
 
+  // next button as start button
+  $nextWaveBtn.className = "control_button start_button";
+
+  // next button listener
   $nextWaveBtn.addEventListener('click', function(e){
     if (!game.started) {
       game.started = true;
       $nextWaveBtn.innerHTML = "Next Wave";
+      $nextWaveBtn.className = "control_button";
       updateGUI();
     } else {
       game.nextWave();
     }
   });
 
+  // pause / resume listener
   $pauseResumeBtn.addEventListener('click', function(e){
     if ($pauseResumeBtn.innerHTML === "Pause") {
       App.pause();
@@ -72,6 +78,7 @@ function Menu(options){
     }
   });
 
+  // end game listener
   $endGameBtn.addEventListener('click', function(e){
     App.endGame();
   });

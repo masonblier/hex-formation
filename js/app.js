@@ -195,8 +195,9 @@ App.draw = function(animTime){
   }
   lastAnimTime = animTime;
 
-  game.drawActive(ctxa, dt);
-  game.drawPreview(ctxp, dt);
+  game.update(dt);
+  game.drawActive(ctxa);
+  game.drawPreview(ctxp);
 
   if (!App.paused) {
     requestAnimationFrame(App.draw);

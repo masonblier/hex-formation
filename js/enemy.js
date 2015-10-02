@@ -51,10 +51,11 @@ function Enemy(data) {
     if (this.onRemove) this.onRemove();
   };
 
-  // draw
-  this.draw = function(ctx, dt){
+  // update
+  this.update = function(dt){
     if (this.removed) return;
 
+    // update movement
     var posDt = pathStepDelta(dt);
     pos.x += posDt.dx;
     pos.y += posDt.dy;
@@ -68,7 +69,14 @@ function Enemy(data) {
       pos = this.pos = Hex.getHexCenter(currentStep.q, currentStep.r);
     }
 
+    // update rotation
     rotAngle += dt * dAngle;
+
+  };
+
+  // draw
+  this.draw = function(ctx){
+    if (this.removed) return;
 
     ctx.save();
     ctx.translate(pos.x, pos.y);

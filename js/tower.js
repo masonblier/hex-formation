@@ -88,8 +88,8 @@ function Tower(data) {
     makeBullet = function(){
       toggleSide = -toggleSide;
       return {
-        x: pos.x + (Math.cos(rotAngle + toggleSide*0.1) * 18),
-        y: pos.y + (Math.sin(rotAngle + toggleSide*0.1) * 18),
+        x: pos.x,// + (Math.cos(rotAngle + toggleSide*0.1) * 18),
+        y: pos.y,// + (Math.sin(rotAngle + toggleSide*0.1) * 18),
         angle: rotAngle
       };
     };
@@ -104,27 +104,32 @@ function Tower(data) {
 
   } else if (type === 'laser') {
     makeBullet = function(){
-      return {};
+      return {
+        x: pos.x,
+        y: pos.y
+      };
     };
     drawBullet = function(ctx, bullet){
-      var x1 = pos.x + (Math.cos(rotAngle) * 18);
-      var y1 = pos.y + (Math.sin(rotAngle) * 18);
+      if (target) {
+        var x1 = pos.x + (Math.cos(rotAngle) * 18);
+        var y1 = pos.y + (Math.sin(rotAngle) * 18);
 
-      ctx.save();
-      ctx.strokeStyle = R.towerRed;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(x1, y1);
-      ctx.lineTo(target.pos.x, target.pos.y);
-      ctx.stroke();
-      ctx.restore();
+        ctx.save();
+        ctx.strokeStyle = R.towerRed;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(target.pos.x, target.pos.y);
+        ctx.stroke();
+        ctx.restore();
+      }
     };
 
   } else {
     makeBullet = function(){
       return {
-        x: pos.x + (Math.cos(rotAngle) * 18),
-        y: pos.y + (Math.sin(rotAngle) * 18),
+        x: pos.x,// + (Math.cos(rotAngle) * 18),
+        y: pos.y,// + (Math.sin(rotAngle) * 18),
         angle: rotAngle
       };
     };
@@ -138,19 +143,18 @@ function Tower(data) {
     };
   }
 
-  // draw
-  _this.draw = function(ctx, dt){
-    if (_this.removed) return;
-
-    // update
+  // update
+  _this.update = function(dt){
+    // check if target is removed or out of range
     if (target && (target.removed || U.distance(pos, target.pos) > _this.range)) {
-      // target out of range
       target = null;
     }
+
+    // check for new target
     if (!target) {
-      // check for new target
       target = game.getTargetsInRange(pos, _this.range)[0] || null;
     }
+
     if (target) {
       // aim at target
       var dx = target.pos.x - pos.x;
@@ -165,6 +169,61 @@ function Tower(data) {
         msToBullet -= dt;
       }
     }
+
+    // update active bullets
+    _this.updateBullets(dt);
+  };
+
+  // update bullets
+  _this.updateBullets = function(dt){
+    for (var i = 0; i < bullets.length; ++i) {
+      if (!bullets[i]) continue;
+      var bullet = bullets[i];
+
+      // check if out of range
+      var mapRange = game.getMapRange();
+      if (bullet.x < mapRange.x1 || bullet.x > mapRange.x2 ||
+          bullet.y < mapRange.y1 || bullet.y > mapRange.y2) {
+        bullets[i] = null;
+        return;
+      }
+
+      // calculate next position
+      var nextX = Math.cos(bullet.angle) * dt * bulletSpeed;
+      var nextY = Math.sin(bullet.angle) * dt * bulletSpeed;
+
+      // check for hit
+      var enemyRadius = 8;
+      var llen = U.distance(bullet, {x:nextX,y:nextY});
+      var collisions = game.getTargetsInRange(bullet, llen + enemyRadius);
+      for (var ci = 0; ci < collisions.length; ++ci) {
+        var cd = U.pointToLineDistance(collisions[ci].pos, bullet, {x:nextX,y:nextY});
+        if (cd < enemyRadius) {
+          // collision
+          collisions[ci].applyDamage(_this.damage / bulletsPerSecond);
+          bullets[i] = null;
+          return;
+        }
+      }
+
+      // update position
+      bullet.x += nextX;
+      bullet.y += nextY;
+    }
+  };
+
+  // override update for laser type towers
+  if (type === "laser") {
+    _this.updateBullets = function(dt){
+      if (target) {
+        target.applyDamage(_this.damage * (dt / 1000.0));
+      }
+    };
+  }
+
+  // draw
+  _this.draw = function(ctx){
+    if (_this.removed) return;
 
     // draw
     if (_this.isSelected) {
@@ -186,56 +245,18 @@ function Tower(data) {
 
     ctx.restore();
 
-    _this.drawBullets(ctx, dt);
+    _this.drawBullets(ctx);
   };
 
-  _this.drawBullets = function(ctx, dt){
+  _this.drawBullets = function(ctx){
     for (var i = 0; i < bullets.length; ++i) {
       if (!bullets[i]) continue;
       var bullet = bullets[i];
 
-      // check if out of range
-      var mapRange = game.getMapRange();
-      if (bullet.x < mapRange.x1 || bullet.x > mapRange.x2 ||
-          bullet.y < mapRange.y1 || bullet.y > mapRange.y2) {
-        bullets[i] = null;
-        return;
-      }
-
-      var nextX = Math.cos(bullet.angle) * dt * bulletSpeed;
-      var nextY = Math.sin(bullet.angle) * dt * bulletSpeed;
-
-      // check for hit
-      var enemyRadius = 8;
-      var llen = U.distance(bullet, {x:nextX,y:nextY});
-      var collisions = game.getTargetsInRange(bullet, llen + enemyRadius);
-      for (var ci = 0; ci < collisions.length; ++ci) {
-        var cd = U.pointToLineDistance(collisions[ci].pos, bullet, {x:nextX,y:nextY});
-        if (cd < enemyRadius) {
-          // collision
-          collisions[ci].applyDamage(_this.damage / bulletsPerSecond);
-          bullets[i] = null;
-          return;
-        }
-      }
-
       // draw
       drawBullet(ctx, bullet);
-
-      // update position
-      bullet.x += nextX;
-      bullet.y += nextY;
     }
   };
-
-  if (type === "laser") {
-    _this.drawBullets = function(ctx, dt){
-      if (target) {
-        target.applyDamage(_this.damage * (dt / 1000.0));
-        drawBullet(ctx);
-      }
-    };
-  }
 
   _this.drawRange = function(ctx){
     ctx.save();

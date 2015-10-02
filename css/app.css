@@ -175,6 +175,13 @@ button[disabled] {
   font-size: 12px;
 }
 
+.control_button.start_button {
+  background: #036128;
+}
+.control_button.start_button:hover {
+  background: #208040;
+}
+
 #controls {
   padding: 10px;
 }

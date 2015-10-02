@@ -80,14 +80,8 @@ function Game(data) {
     }
   };
 
-  // draw map (static)
-  game.drawMap = function(ctxa){
-    ctxa.clearRect(0,0, App.width, App.height);
-    gameMap.draw(ctxa, dt);
-  };
-
-  // draw active layer
-  game.drawActive = function(ctxa, dt){
+  // update
+  game.update = function(dt){
     if (game.ended) return;
 
     // make next enemy
@@ -106,6 +100,31 @@ function Game(data) {
       }
     }
 
+    // update towers
+    for (var k in towers) {
+      if (towers[k]) {
+        towers[k].update(dt);
+      }
+    }
+
+    // update enemies
+    for (var i = 0; i < enemies.length; ++i) {
+      if (enemies[i]) {
+        enemies[i].update(dt);
+      }
+    }
+  };
+
+  // draw map (static)
+  game.drawMap = function(ctxa){
+    ctxa.clearRect(0,0, App.width, App.height);
+    gameMap.draw(ctxa);
+  };
+
+  // draw active layer
+  game.drawActive = function(ctxa){
+    if (game.ended) return;
+
     // clear layer
     ctxa.clearRect(0,0, App.width, App.height);
 
@@ -123,14 +142,14 @@ function Game(data) {
         if (game.selectedTower === towers[k]) {
           towers[k].drawRange(ctxa);
         }
-        towers[k].draw(ctxa, dt);
+        towers[k].draw(ctxa);
       }
     }
 
     // draw enemies
     for (var i = 0; i < enemies.length; ++i) {
       if (enemies[i]) {
-        enemies[i].draw(ctxa, dt);
+        enemies[i].draw(ctxa);
       }
     }
 
@@ -138,7 +157,7 @@ function Game(data) {
   };
 
   // draw preview layer
-  game.drawPreview = function(ctxp, dt){
+  game.drawPreview = function(ctxp){
     // clear layer
     ctxp.clearRect(0,0, App.width, App.height);
 
