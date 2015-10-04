@@ -240,9 +240,24 @@ button[disabled] {
   padding-bottom: 20px;
   pointer-events: initial;
 }
-#start_button {
+#map_select_title {
+  margin-top: 0;
+}
+.map_button {
   font-size: 16px;
-  padding: 12px 17px;
+  padding: 0;
+  margin: 0 15px;
+}
+.map_button > .map_name {
+  padding: 5px;
+  margin-bottom: 3px;
+}
+.map_button > canvas {
+  display: block;
+  border-radius: 0 0 5px 5px;
+}
+.map_button:hover > canvas {
+  opacity: 0.5;
 }
 
 /* end game prompt */

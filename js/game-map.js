@@ -13,8 +13,21 @@ function GameMap(data) {
   var offsetX = this.offsetX = -(xw * gridHeight);
   var offsetY = this.offsetY = 0;
 
-  // draw entry
+  // game map edit click
+  this.editClick = function(x, y){
+    var clickedHex = this.getHexAt(x, y);
+    var clickedCell = this.getCell(clickedHex.q, clickedHex.r);
+    if (!clickedCell) {
+      clickedCell = {type:"path"};
+    } else if (!clickedCell.type) {
+      clickedCell = null;
+    } else {
+      clickedCell.type = null;
+    }
+    this.setCell(clickedHex.q, clickedHex.r, clickedCell);
+  };
 
+  // draw map
   this.draw = function(ctx) {
     ctx.save();
     ctx.translate(mapX, mapY);

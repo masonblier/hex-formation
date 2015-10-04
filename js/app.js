@@ -3,6 +3,7 @@ var App = window.App = {};
 var top_canvas;
 var ctxm, ctxa, ctxp;
 var game, menu;
+var editMap;
 
 var $overlay, $display, $fps;
 var $displayOverlay;
@@ -44,8 +45,8 @@ App.start = function(){
 
   // prepare resources
   R.makePatterns(ctxm);
-  R.makeTowers(ctxa);
-  R.makeTowers(ctxp);
+  R.makeTowers();
+  R.makeMapPreviews();
 
   // events
   top_canvas.addEventListener('mousemove', function(e){
@@ -75,6 +76,7 @@ App.start = function(){
   // show menu
   setTimeout(function(){
     App.showGameMenu();
+    // App.showEditMap();
   }, 0);
 };
 
@@ -82,20 +84,26 @@ App.showGameMenu = function(){
   $overlay.innerHTML = '';
   $overlay.style['background'] = "#080808";
   $overlay.style['display'] = null;
+  $overlay.appendChild(U.createElement('h1', 'map_select_title', null, 'Select Map'));
 
-  var $startBtn = U.createElement('button', 'start_button', null, "Start Game");
-  $overlay.appendChild($startBtn);
+  ['alternating', 'zig-zag', 'loopback'].forEach(function(mapName){
+    var $mapBtn = U.createElement('button', null, 'map_button', '<div class="map_name">'+mapName+'</div>');
+    $mapBtn.appendChild(R.mapPreviews[mapName]);
+    $overlay.appendChild($mapBtn);
 
-  $startBtn.addEventListener('click', function(e){
-    App.newGame();
-    $overlay.style['display'] = 'none';
-    $overlay.style['background'] = null;
+    $mapBtn.addEventListener('click', function(e){
+      App.newGame(mapName);
+      $overlay.style['display'] = 'none';
+      $overlay.style['background'] = null;
+    });
   });
 };
 
-App.newGame = function(){
+App.newGame = function(mapName){
   // game instance
-  game = new Game({});
+  game = new Game({
+    map: maps[mapName]
+  });
 
   // menu gui
   menu = new Menu({
@@ -110,7 +118,7 @@ App.newGame = function(){
   ctxp.clearRect(0,0, App.width, App.height);
 
   // draw map
-  game.drawMap(ctxm, dt);
+  game.drawMap(ctxm);
 
   // start loop
   App.resume();
@@ -171,9 +179,33 @@ App.showGameEndScreen = function(isWin){
   });
 };
 
+App.showEditMap = function(){
+  $overlay.innerHTML = '';
+  $overlay.style['display'] = 'none';
+  $overlay.style['background'] = null;
+
+  // game instance
+  editMap = new GameMap(maps.blank);
+
+  // menu gui
+  // menu = new Menu({
+  //   '$el': document.getElementById('menu'),
+  //   '$display': $displayOverlay,
+  //   game: game
+  // });
+
+  // draw map
+  ctxm.clearRect(0,0, App.width, App.height);
+  editMap.draw(ctxm);
+};
+
 App.click = function(x, y){
   if (game) {
     game.click(x, y);
+  } else if (editMap) {
+    // map edit mode
+    editMap.editClick(x, y);
+    editMap.draw(ctxm);
   }
 };
 

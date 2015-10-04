@@ -138,3 +138,28 @@ R.makeTowers = function(ctx){
     return towerCanvas;
   }
 };
+
+R.makeMapPreviews = function(){
+  R.mapPreviews = {};
+
+  ['alternating', 'zig-zag', 'loopback'].forEach(function(mapName){
+    var mapData = maps[mapName];
+    R.mapPreviews[mapName] = makePreviewCanvas();
+    var pctx = R.mapPreviews[mapName].getContext("2d");
+    pctx.save();
+    pctx.translate(-120, -100);
+    pctx.scale(0.7, 0.7);
+
+    var mapObj = new GameMap(mapData);
+    mapObj.draw(pctx);
+
+    pctx.restore();
+  });
+
+  function makePreviewCanvas(){
+    var previewCanvas = document.createElement("canvas");
+    previewCanvas.width = 200;
+    previewCanvas.height = 150;
+    return previewCanvas;
+  }
+};

@@ -39,7 +39,7 @@ function Game(data) {
   ];
 
   // game map
-  gameMap = game.map = new GameMap(window.testMapData);
+  gameMap = game.map = new GameMap(data.map);
 
   var mapOffsetX = gameMap.offsetX + Hex.width/2 + gameMap.mapX;
   var mapOffsetY = gameMap.offsetY + Hex.height/2 + gameMap.mapY;
@@ -116,9 +116,9 @@ function Game(data) {
   };
 
   // draw map (static)
-  game.drawMap = function(ctxa){
-    ctxa.clearRect(0,0, App.width, App.height);
-    gameMap.draw(ctxa);
+  game.drawMap = function(ctxm){
+    ctxm.clearRect(0,0, App.width, App.height);
+    gameMap.draw(ctxm);
   };
 
   // draw active layer
@@ -132,8 +132,8 @@ function Game(data) {
     ctxa.translate(mapOffsetX, mapOffsetY);
 
     // draw enemy path lines
-    // if (enemyPath) {
-    //   testEnemy.drawPath(ctxa);
+    // if (enemyPath && enemies[0]) {
+    //   enemies[0].drawPath(ctxa);
     // }
 
     // draw towers
