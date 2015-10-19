@@ -1,6 +1,9 @@
 function Game(data) {
   var game = this;
 
+  // options
+  var mapName = this.mapName = data.map;
+
   // state
   var gameMap;
   var towers = {};
@@ -9,6 +12,7 @@ function Game(data) {
 
   var enemiesPerSecond = 2;
   var msToNextEnemy = 0;
+  var enemiesKilled = 0;
   game.enemiesReleased = 0;
 
   game.wave = 0;
@@ -39,7 +43,7 @@ function Game(data) {
   ];
 
   // game map
-  gameMap = game.map = new GameMap(data.map);
+  gameMap = game.map = new GameMap(maps[mapName]);
 
   var mapOffsetX = gameMap.offsetX + Hex.width/2 + gameMap.mapX;
   var mapOffsetY = gameMap.offsetY + Hex.height/2 + gameMap.mapY;
@@ -48,11 +52,6 @@ function Game(data) {
   var startCell = gameMap.getStartCells()[0];
   var endCell = gameMap.getEndCells()[0];
   enemyPath = gameMap.getPath(startCell, endCell);
-
-  // add test towers
-  // addTower({q:15,r:6}, "standard");
-  // addTower({q:17,r:6}, "rapid");
-  // addTower({q:19,r:6}, "laser");
 
   // onClick
   game.click = function(x, y){
@@ -247,6 +246,7 @@ function Game(data) {
   game.removeEnemy = function(idx, enemy){
     if (enemy.killed) {
       game.cash += enemy.reward();
+      enemiesKilled += 1;
     } else {
       game.lives -= 1;
     }
@@ -263,6 +263,11 @@ function Game(data) {
       enemies = [];
       game.nextWave();
     }
+  };
+
+  // calculate score
+  game.getScore = function(){
+    return Math.floor(1000*game.lives + 10*enemiesKilled + 1.5*game.cash)*10;
   };
 
   // data functions

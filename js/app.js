@@ -89,6 +89,11 @@ App.showGameMenu = function(){
   ['alternating', 'zig-zag', 'loopback'].forEach(function(mapName){
     var $mapBtn = U.createElement('button', null, 'map_button', '<div class="map_name">'+mapName+'</div>');
     $mapBtn.appendChild(R.mapPreviews[mapName]);
+
+    var mapHighScore = localStorage && localStorage['highscore_'+mapName];
+    var $highScore = U.createElement('div', null, 'high_score', (mapHighScore ? 'score: '+mapHighScore : '&nbsp;'));
+    $mapBtn.appendChild($highScore);
+
     $overlay.appendChild($mapBtn);
 
     $mapBtn.addEventListener('click', function(e){
@@ -102,7 +107,7 @@ App.showGameMenu = function(){
 App.newGame = function(mapName){
   // game instance
   game = new Game({
-    map: maps[mapName]
+    map: mapName
   });
 
   // menu gui
@@ -160,12 +165,21 @@ App.endGame = function(){
 App.showGameEndScreen = function(isWin){
   App.pause();
 
-  // show confirmation
+  if (isWin) {
+    var finalScore = game.getScore();
+    if (localStorage) {
+      var oldScore = parseInt(localStorage['highscore_'+game.mapName], 10);
+      if (!oldScore || finalScore > oldScore) {
+        localStorage['highscore_'+game.mapName] = finalScore;
+      }
+    }
+  }
+
   $overlay.innerHTML = '';
   $overlay.style['display'] = null;
 
   var $gameEndScreen = U.createElement('div', 'game_ended_screen', 'overlay_modal',
-    (isWin ? 'Game completed. You have won.' : 'Game over. You have lost.')+'<br />');
+    (isWin ? 'Game completed. You have won. Score: '+finalScore : 'Game over. You have lost.')+'<br />');
   $overlay.appendChild($gameEndScreen);
 
   var $returnBtn = U.createElement('button', 'game_ended_button', null, "Return");

@@ -259,6 +259,10 @@ button[disabled] {
 .map_button:hover > canvas {
   opacity: 0.5;
 }
+.high_score {
+  font-size: 14px;
+  padding: 2px;
+}
 
 /* end game prompt */
 .overlay_modal {
